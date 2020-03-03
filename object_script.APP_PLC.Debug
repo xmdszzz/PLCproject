@@ -1,0 +1,14 @@
+INPUT(
+./debug\main.o
+./debug\mainwindow.o
+./debug\dialog.o
+./debug\panel_add_component.o
+./debug\parseld2.o
+./debug\editld2.o
+./debug\UiUpdata.o
+./debug\windows.o
+./debug\moc_mainwindow.o
+./debug\moc_dialog.o
+./debug\moc_panel_add_component.o
+./debug\moc_windows.o
+);

@@ -1,0 +1,14 @@
+INPUT(
+./release\main.o
+./release\mainwindow.o
+./release\dialog.o
+./release\panel_add_component.o
+./release\parseld2.o
+./release\editld2.o
+./release\UiUpdata.o
+./release\windows.o
+./release\moc_mainwindow.o
+./release\moc_dialog.o
+./release\moc_panel_add_component.o
+./release\moc_windows.o
+);
