@@ -1,4 +1,4 @@
-﻿#pragma execution_character_set("utf-8")
+﻿//#pragma execution_character_set("utf-8")
 #include "parseld2.h"
 #include <iostream>
 #include "newstruct.h"
@@ -373,7 +373,7 @@ void parse_ld_data(char*& current_ptr)
 
     cout << "程序块名称：";
     LD_STRING program_name = Parse_LD_STRING(current_ptr);
-    tempnetworks->name = program_name.pstring;
+    tempnetworks->name = QString::fromLocal8Bit(program_name.pstring);
     free(program_name.pstring);
 
     cout << "程序块设计者：";
@@ -409,10 +409,12 @@ void parse_ld_data(char*& current_ptr)
 
     for(int i = 0 ; i < real_size_network ; i ++)
     {
+                    components *tempcomponents = new components;
 
         cout << "     network ID: " << i + 1 << ":" << endl;
         cout << "         注释：";
-        Parse_LD_STRING(current_ptr);
+        tempcomponents->comment = Parse_LD_STRING(current_ptr).pstring;
+        //Parse_LD_STRING(current_ptr);
         cout << "         row of network：";
         LD_SIZE row = parse_ld_size(current_ptr);
         print_ld_size(row);
@@ -429,7 +431,7 @@ void parse_ld_data(char*& current_ptr)
         }
 
 
-            components *tempcomponents = new components;
+
 
         for(int j = 0; j < real_row ; j++)
         {
@@ -678,14 +680,18 @@ void parse_ld2file(const char*path)
     cout << endl;
     cout << "----------  梯形图程序数据  ------------" << endl;
 
-    while(current_ptr - buffer < plc_header.offsetInitDataTable)
-        {
-            parse_ld_data(current_ptr);
-        }
+//    while(current_ptr - buffer < plc_header.offsetInitDataTable)
+//        {
+//            parse_ld_data(current_ptr);
+//        }
+//        parse_ld_data(current_ptr);
+    for(INT32U i = 1;i <= plc_header.blocks;i ++)
+    {
         parse_ld_data(current_ptr);
+    }
 
 
-    cout << "----------------------------------" << endl;
+    cout << "----------------------------------end" << endl;
     cout << endl;
 
 }

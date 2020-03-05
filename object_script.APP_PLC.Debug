@@ -1,5 +1,6 @@
 INPUT(
 ./debug\main.o
+./debug\information.o
 ./debug\mainwindow.o
 ./debug\dialog.o
 ./debug\panel_add_component.o
@@ -9,6 +10,7 @@ INPUT(
 ./debug\windows.o
 ./debug\moc_mainwindow.o
 ./debug\moc_dialog.o
+./debug\moc_information.o
 ./debug\moc_panel_add_component.o
 ./debug\moc_windows.o
 );

@@ -16,6 +16,7 @@ public:
     ~windows();
 
     void ui_label_2();
+    QString name;
 
 
 private slots:

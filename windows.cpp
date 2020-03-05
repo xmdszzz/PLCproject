@@ -3,6 +3,7 @@
 #include "QString"
 #include "QStringList"
 #include <QDebug>
+#include "UiUpData.h"
 
 windows::windows(QWidget *parent) :
     QDialog(parent),
@@ -10,7 +11,7 @@ windows::windows(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    this->setWindowTitle("1");
+//    this->setWindowTitle("赋值窗口");
 
     this->setWindowFlags (Qt::FramelessWindowHint);
 
@@ -26,17 +27,18 @@ windows::~windows()
 
 void windows::on_pushButton_open_clicked()
 {
-    QString name=ui->lineEdit->text();
-    QString a=name.mid(0,1);
-    if(name.startsWith('A'))
-    {
-        qDebug()<<name<<endl;
-        this->close();
-    }
-    else
-    {
-        qDebug()<<"输入� �式错误"<<endl;
-    }
+    QString n=ui->lineEdit->text();
+    name = n;
+//    QString a=name.mid(0,1);
+//    if(name.startsWith('A'))
+//    {
+//        qDebug()<<name<<endl;
+//        this->close();
+//    }
+//    else
+//    {
+//        qDebug()<<"输入� �式错误"<<endl;
+//    }
 
 }
 

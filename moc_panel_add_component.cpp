@@ -1,4 +1,4 @@
-﻿/****************************************************************************
+/****************************************************************************
 ** Meta object code from reading C++ file 'panel_add_component.h'
 **
 ** Created by: The Qt Meta Object Compiler version 67 (Qt 5.14.0)
@@ -20,7 +20,7 @@
 
 QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
-//QT_WARNING_DISABLE_DEPRECATED
+QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_Panel_add_component_t {
     QByteArrayData data[1];
     char stringdata0[20];

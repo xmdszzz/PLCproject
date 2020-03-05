@@ -98,8 +98,9 @@ class SingleComponent {
 
 
 
-struct components
+struct components //单个Network
 {
+    QString comment;
     QList<SingleComponent> component[8];   //列链表形式的元件表（存储单个网络的所有元件，列数=8，行数=QList.size
 };
 

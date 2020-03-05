@@ -13,6 +13,7 @@
 #include "parseld2.h"
 #include "editld2.h"
 #include "windows.h"
+#include"information.h"
 #include "stable.h"
 
 //cpp headers:
@@ -45,12 +46,14 @@ public:
     void load_Ladder();
     void resizeEvent(QResizeEvent *event);
     void load_ld2(int);
+//    void load_ld2(int);
     void reFreshLd2(int);
     void hidetreeView();
 
 //members:
     QStandardItemModel *standItemModel;
     Dialog dialog;
+    Information project;
 
 private slots:
     void on_pushButton_6_clicked();

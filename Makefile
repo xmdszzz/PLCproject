@@ -200,9 +200,9 @@ Makefile: APP_PLC.pro D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\win32-msv
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\resolve_config.prf \
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\exclusive_builds_post.prf \
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\default_post.prf \
-		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\precompile_header.prf \
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\qml_debug.prf \
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\win32\rtti.prf \
+		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\precompile_header.prf \
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\warn_on.prf \
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\qt.prf \
 		D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\resources.prf \
@@ -348,9 +348,9 @@ D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\win32\default_pre.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\resolve_config.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\exclusive_builds_post.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\default_post.prf:
-D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\precompile_header.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\qml_debug.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\win32\rtti.prf:
+D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\precompile_header.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\warn_on.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\qt.prf:
 D:\software\Qt\Qt5.6.3\5.6.3\msvc2015_64\mkspecs\features\resources.prf:
@@ -376,7 +376,6 @@ qmake_all: FORCE
 make_first: debug-make_first release-make_first  FORCE
 all: debug-all release-all  FORCE
 clean: debug-clean release-clean  FORCE
-	-$(DEL_FILE) APP_PLC_pch.pch
 	-$(DEL_FILE) APP_PLC.exp
 	-$(DEL_FILE) APP_PLC.vc.pdb
 	-$(DEL_FILE) APP_PLC.ilk

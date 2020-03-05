@@ -25,6 +25,7 @@ const int Jobnumber_2 = 2;//工程编号，默认2
 
 int click_status = DefaultSet;//全局变量
 int row,colunm;//光标所在的行列数
+int aRow = 10;//总行数
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -75,6 +76,7 @@ void MainWindow::UI_Init()
 void MainWindow::hidetreeView()
 {
     ui->treeView->hide();
+    ui->tableView_2->hide();
     ui->pushButton_12->setEnabled(false);//没有打开文件，禁用工程管理
 }
 
@@ -99,22 +101,22 @@ void MainWindow::load_Ladder()
 
 
     ui->tableView->setModel(standItemModel);
-    for(int i = 0 ; i <= 10 ; i ++)
-    {
-        if(i == 0)
-        {
-         ui->tableView->setColumnWidth(i,this->size().width()/36);
-        }
-        else
-        {
-         ui->tableView->setColumnWidth(i,this->size().width()/12);
-        }
-    }
+//    for(int i = 0 ; i <= 10 ; i ++)
+//    {
+//        if(i == 0)
+//        {
+//         ui->tableView->setColumnWidth(i,this->size().width()/36);
+//        }
+//        else
+//        {
+//         ui->tableView->setColumnWidth(i,this->size().width()/12);
+//        }
+//    }
 
-    for(int i = 0 ; i <= 19 ; i ++)
-    {
-         ui->tableView->setRowHeight(i,this->size().width()/24);
-    }
+//    for(int i = 0 ; i <= 19 ; i ++)
+//    {
+//         ui->tableView->setRowHeight(i,this->size().width()/24);
+//    }
 
 
     //1 col
@@ -241,7 +243,7 @@ void MainWindow::load_Ladder()
 
 void MainWindow::resizeEvent(QResizeEvent *event)
 {
-    for(int i = 0 ; i <= 10 ; i ++)
+    for(int i = 0 ; i <= aRow ; i ++)
     {
         if(i == 0)
         {
@@ -253,7 +255,7 @@ void MainWindow::resizeEvent(QResizeEvent *event)
         }
     }
 
-    for(int i = 0 ; i <= 10 ; i ++) //bug
+    for(int i = 0 ; i <= aRow ; i ++) //bug
     {
          ui->tableView->setRowHeight(i,this->size().width()/24);
     }
@@ -267,7 +269,8 @@ void MainWindow::on_pushButton_6_clicked()//工程管理状态下查找，默认
     }
     else if(click_status == Engineering)
     {
-        this->dialog.show();
+        this->project.setWindowTitle("工程管理信息");
+        this->project.show();
     }
     else if(click_status == EditMode)
     {
@@ -323,6 +326,8 @@ void MainWindow::on_button_open_clicked()//默认状态下打开文件，其他�
         ui->pushButton_16->setText(" ");
         ui->button_open->setText("打开");
         ui->pushButton_12->setStyleSheet(0);//恢复颜色
+        ui->tableView_2->hide();
+        ui->tableView->show();
     }
     else
     {
@@ -351,18 +356,44 @@ void MainWindow::reFreshLd2(int temp = 0)
 
     for(int i = 0 ;i < programs[temp].network.size() ; i ++)
     {
+//        取消了额外加一行，改成j<= -江海涛
+//        SetItem(standItemModel,cnt_leftpowerline);
+//        cnt_leftpowerline ++;
 
-        for(int j = 0;j <= programs[0].network[i].component[0].size();j ++,cnt_leftpowerline ++)
+        for(int j = 0;j <= programs[temp].network[i].component[0].size();j ++,cnt_leftpowerline ++)
         {
+//            QStandardItem *standItem0;
+//            if(j == 0)
+//            {
+//                standItem0 = new QStandardItem(QString::number(i+1));
+//            }
+//            else
+//            {
+//                standItem0 = new QStandardItem();
+//            }
+
             SetItem(standItemModel,cnt_leftpowerline);
+
+            //standItem0->setBackground(QColor (0, 152, 227, 255));
+//            standItem0->setSelectable(0);
+//            standItem0->setEditable(0);
+
+            QString sl,sr ;
+            sl = "_left.png";
+            sr = "_right.png";
+            if(j == 0)
+            {
+                sl = "_nleft.png";
+                sr = "_nright.png";
+            }
             //1 col
             QLabel *label = new QLabel;
-            set_col(label,"_left.png");
+            set_col(label,sl);
             ui->tableView->setIndexWidget(this->standItemModel->index(cnt_leftpowerline, 1),label);
 
             //10 col
             QLabel *label2 = new QLabel;
-            set_col(label2,"_right.png");
+            set_col(label2,sr);
             ui->tableView->setIndexWidget(this->standItemModel->index(cnt_leftpowerline, 10),label2);
         }
 
@@ -376,6 +407,7 @@ void MainWindow::reFreshLd2(int temp = 0)
     for(int i = 0 ; i < programs[temp].network.size() ; i ++)
     {
         QLabel *label = new QLabel;
+        label->setStyleSheet("background-color: rgb(0, 255, 0)");
         label->setText(QString("network %1").arg(i+1));
         ui->tableView->setIndexWidget(standItemModel->index(cnt_passrow-1, 2),label);
         for(int j = 0 ; j < programs[temp].network[i].component[0].size() ; j ++)
@@ -383,32 +415,46 @@ void MainWindow::reFreshLd2(int temp = 0)
             for(int k = 0 ; k < 8 ; k ++)
             {
                 name = programs[temp].network[i].component[k][j].Name;
-                if(programs[temp].network[i].component[k][j].Type == 0)
+
+                if(k == 0 && programs[temp].network[i].component[k][j].Type == 0)
                 {
-
-                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Data0 == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
-                    {
-//                            QLabel *label = new QLabel;
-//                            set_col(label,"_2_left_up.png");
-//                            ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
-                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
-                    }
-                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Type == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
-                    {
-//                            QLabel *label = new QLabel;
-//                            set_col(label,"_2_left_up.png");
-//                            ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
-                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
-                    }
-//                    if(k == 6)
-//                    {
-//                        QLabel *label = new QLabel;
-//                        set_col(label,"_2.png");
-//                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, 10),label);
-//                    }
-
-
+                    QLabel *label = new QLabel;
+                    set_col(label,"_nleft.png");
+                    ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1),label);
                 }
+
+                if(k == 7 && programs[temp].network[i].component[k][j].Type == 0)
+                {
+                    QLabel *label = new QLabel;
+                    set_col(label,"_nright.png");
+                    ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 3),label);
+                }
+//                if(programs[temp].network[i].component[k][j].Type == 0)
+//                {
+
+//                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Data0 == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
+//                    {
+////                            QLabel *label = new QLabel;
+////                            set_col(label,"_2_left_up.png");
+////                            ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
+//                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
+//                    }
+//                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Type == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
+//                    {
+////                            QLabel *label = new QLabel;
+////                            set_col(label,"_2_left_up.png");
+////                            ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
+//                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
+//                    }
+////                    if(k == 6)
+////                    {
+////                        QLabel *label = new QLabel;
+////                        set_col(label,"_2.png");
+////                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, 10),label);
+////                    }
+
+
+//                }
 
                 if(programs[temp].network[i].component[k][j].Type == 1)//横线
                 {
@@ -857,13 +903,32 @@ void MainWindow::reFreshLd2(int temp = 0)
 //                {
 
 //                }
+                //特殊元器件（简单类型）
+                if(programs[temp].network[i].component[k][j].Type >=  32 && programs[temp].network[i].component[k][j].Type <=  38)//SET,CALL,RST,DIFU,DIFD,ALT
+                {
+                    if(j==0 || (programs[temp].network[i].component[k][j-1].Data0!=2 && (programs[temp].network[i].component[k+1][j-1].Data0!=2 && programs[temp].network[i].component[k+1][j-1].Type!=2)))
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_111.png",name);
+                    }
+                    if(programs[temp].network[i].component[k][j].Data0 == 2)
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_114.png",name);
+                    }
+                    if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 != 2)
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_112.png",name);
+                    }
+                    if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 == 2)
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_113.png",name);
+                    }
+                }
 
             }
         }
         cnt_passrow += programs[temp].network[i].component[0].size() + 1;
     }
 }
-
 
 void MainWindow::load_ld2(int temp = 0)
 {
@@ -899,23 +964,31 @@ void MainWindow::load_ld2(int temp = 0)
 //            standItem0->setSelectable(0);
 //            standItem0->setEditable(0);
 
-
+            QString sl,sr ;
+            sl = "_left.png";
+            sr = "_right.png";
+            if(j == 0)
+            {
+                sl = "_nleft.png";
+                sr = "_nright.png";
+            }
             //1 col
             QLabel *label = new QLabel;
-            set_col(label,"_left.png");
+            set_col(label,sl);
             ui->tableView->setIndexWidget(this->standItemModel->index(cnt_leftpowerline, 1),label);
 
             //10 col
             QLabel *label2 = new QLabel;
-            set_col(label2,"_right.png");
+            set_col(label2,sr);
             ui->tableView->setIndexWidget(this->standItemModel->index(cnt_leftpowerline, 10),label2);
         }
 
     }
+    aRow = cnt_leftpowerline;
 
     ui->tableView->setModel(standItemModel);
 
-    for(int i = 0 ; i <= 10 ; i ++)
+    for(int i = 0 ; i <= cnt_leftpowerline ; i ++)
     {
         if(i == 0)
         {
@@ -942,28 +1015,45 @@ void MainWindow::load_ld2(int temp = 0)
         QLabel *label = new QLabel;
         label->setText(QString("network %1").arg(i+1));
         ui->tableView->setIndexWidget(standItemModel->index(cnt_passrow-1, 2),label);
+        QLabel *label2 = new QLabel;
+        label2->setText(programs[temp].network[i].comment.toUtf8().data());
+        ui->tableView->setIndexWidget(standItemModel->index(cnt_passrow-1,3),label2);
         for(int j = 0 ; j < programs[temp].network[i].component[0].size() ; j ++)
         {
             for(int k = 0 ; k < 8 ; k ++)
             {
                 name = programs[temp].network[i].component[k][j].Name;
-                if(programs[temp].network[i].component[k][j].Type == 0)
-                {
 
-                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Data0 == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
-                    {
+                if(k == 0 && programs[temp].network[i].component[k][j].Type == 0)
+                {
+                    QLabel *label = new QLabel;
+                    set_col(label,"_nleft.png");
+                    ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1),label);
+                }
+
+                if(k == 7 && programs[temp].network[i].component[k][j].Type == 0)
+                {
+                    QLabel *label = new QLabel;
+                    set_col(label,"_nright.png");
+                    ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 3),label);
+                }
+//                if(programs[temp].network[i].component[k][j].Type == 0)
+//                {
+
+//                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Data0 == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
+//                    {
+//                           QLabel *label = new QLabel;
+//                           set_col(label,"_2_left_up.png");
+//                           ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
+//                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
+//                    }
+//                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Type == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
+//                    {
 //                            QLabel *label = new QLabel;
-//                            set_col(label,"_2_left_up.png");
+//                           set_col(label,"_2_left_up.png");
 //                            ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
-                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
-                    }
-                    if(j != 0 && programs[temp].network[i].component[k][j - 1].Type == 2 && programs[temp].network[i].component[k - 1][j].Type == 1)
-                    {
-//                            QLabel *label = new QLabel;
-//                            set_col(label,"_2_left_up.png");
-//                            ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
-                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
-                    }
+//                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_2_left_up.png",name);
+//                    }
 //                    if(k == 6)
 //                    {
 //                        QLabel *label = new QLabel;
@@ -972,24 +1062,18 @@ void MainWindow::load_ld2(int temp = 0)
 //                    }
 
 
-                }
+ //               }
 
                 if(programs[temp].network[i].component[k][j].Type == 1)//横线
                 {
 
-                    if(k>=2 && programs[temp].network[i].component[k][j].Data0 == 2 && programs[temp].network[i].component[k - 1][j].Data0 != 2)
+                    if(j>=1 && k>=1 && programs[temp].network[i].component[k+1][j-1].Data0 == 2)
                     {
-//                        QLabel *label = new QLabel;
-//                        set_col(label,"_1_left_down.png");
-//                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label);
-                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_1_left_down.png",name);
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_88.png",name);
                     }
 
                     else
                     {
-//                        QLabel *label = new QLabel;
-//                        set_col(label,"_1.png");
-//                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label); //table右移一列，额外+1
                         SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_1.png",name);
                     }
                 }
@@ -1033,291 +1117,112 @@ void MainWindow::load_ld2(int temp = 0)
                     if(j==0 || (programs[temp].network[i].component[k][j-1].Data0!=2 &&
                                 (programs[temp].network[i].component[k+1][j-1].Data0!=2 && programs[temp].network[i].component[k+1][j-1].Type!=2)))
                     {
-//                        QLabel *label = new QLabel;
-//                        set_col(label,"_62.png");
-//                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label); //table右移一列，额外+1
                         SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_62.png",name);
                     }
-                    if(j>=1)//两个并联情况
+                    if(k!=7)
                     {
-                        if(k==0)
+                        if(programs[temp].network[i].component[k+1][j].Data0==2 && programs[temp].network[i].component[k][j].Data0!=2)
                         {
-                            if(programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_66.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_66.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_68.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_68.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_66.png",name);
                         }
-//                        else if(k==7)
-//                        {
-//                            if(programs[temp].network[i].component[k][j-1].Data0==2)
-//                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"6.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"7.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                            }
-//                        }
-                        if(k!=0 && k!=7)
+                        if(j>=1 && programs[temp].network[i].component[k+1][j].Type==2 && programs[temp].network[i].component[k][j].Data0!=2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2 &&
-                                    (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_65.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_65.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_63.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_63.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_67.png",name);
+                        }
+                        if(j>=1 && programs[temp].network[i].component[k+1][j].Type!=2 && (programs[temp].network[i].component[k+1][j-1].Type==2 || programs[temp].network[i].component[k+1][j-1].Data0==2))
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_68.png",name);
                         }
                     }
-                    if(j>=2)//三个并联情况
+                    if(k!=0 && k!=7)
                     {
-                        if(k==0)
+                        if(programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Data0==2)
                         {
-                           if((programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)&&
-                                   (programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))
-                           {
-//                               QLabel *label1 = new QLabel;
-//                               set_col(label1,"_67.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                               SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_67.png",name);
-//                               QLabel *label2 = new QLabel;
-//                               set_col(label2,"_68.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                               SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_68.png",name);
-                           }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_65.png",name);
                         }
-//                        else if(k==7)
-//                        {
-//                            if(programs[temp].network[i].component[k][j-1].Data0==2 && programs[temp].network[i].component[k][j-2].Data0==2)
-//                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"8.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"7.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                            }
-//                        }
-                        if(k!=0 && k!=7)
+                        if(j>=1 && programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Type==2)
                         {
-                            if((programs[temp].network[i].component[k][j-2].Data0==2 &&
-                                (programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))&&
-                                    (programs[temp].network[i].component[k][j-1].Data0==2 && (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_64.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_64.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_63.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_63.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_64.png",name);
                         }
-                    }
+                        if(j>=1 && programs[temp].network[i].component[k][j-1].Data0==2 && programs[temp].network[i].component[k][j].Data0!=2)
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_63.png",name);
+                        }
+                     }
                 }
                 if(programs[temp].network[i].component[k][j].Type == 4)
                 {
-                    if(j==0 || (programs[temp].network[i].component[k][j-1].Data0!=2 && (programs[temp].network[i].component[k+1][j-1].Data0!=2 && programs[temp].network[i].component[k+1][j-1].Type!=2)))
+                    if(j==0 || (programs[temp].network[i].component[k][j-1].Data0!=2 &&
+                                (programs[temp].network[i].component[k+1][j-1].Data0!=2 && programs[temp].network[i].component[k+1][j-1].Type!=2)))
                     {
-//                        QLabel *label = new QLabel;
-//                        set_col(label,"_69.png");
-//                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label); //table右移一列，额外+1
                         SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_69.png",name);
                     }
-                    if(j>=1)//两个并联情况
+                    if(k!=7)
                     {
-                        if(k==0)
+                        if(programs[temp].network[i].component[k+1][j].Data0==2 && programs[temp].network[i].component[k][j].Data0!=2)
                         {
-                            if(programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_72.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_72.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_70.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_70.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_72.png",name);
+
                         }
-//                        else if(k==7)
-//                        {
-//                            if(programs[temp].network[i].component[k][j-1].Data0==2)
-//                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_42.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_40.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                            }
-//                        }
-                        if(k!=0 && k!=7)
+                        if(j>=1 && programs[temp].network[i].component[k+1][j].Type==2 && programs[temp].network[i].component[k][j].Data0!=2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2 && (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_73.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j -1,k+2,"_73.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_75.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_75.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_71.png",name);
+                        }
+                        if(j>=1 && programs[temp].network[i].component[k+1][j].Type!=2 && (programs[temp].network[i].component[k+1][j-1].Type==2 || programs[temp].network[i].component[k+1][j-1].Data0==2))
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_70.png",name);
                         }
                     }
-                    if(j>=2)//三个并联情况
+                    if(k!=0 && k!=7)
                     {
-                        if(k==0)
+                        if(programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Data0==2)
                         {
-                           if((programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)&&(programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))
-                           {
-//                               QLabel *label1 = new QLabel;
-//                               set_col(label1,"_71.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                               SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_71.png",name);
-//                               QLabel *label2 = new QLabel;
-//                               set_col(label2,"_70.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                               SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_70.png",name);
-                           }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_73.png",name);
                         }
-//                        else if(k==7)
-//                        {
-//                            if(programs[temp].network[i].component[k][j-1].Data0==2 && programs[temp].network[i].component[k][j-2].Data0==2)
-//                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_38.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_40.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                            }
-//                        }
-                        if(k!=0 && k!=7)
+                        if(j>=1 && programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Type==2)
                         {
-                            if((programs[temp].network[i].component[k][j-2].Data0==2 && (programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))&&(programs[temp].network[i].component[k][j-1].Data0==2 && (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_74.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_74.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_75.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_75.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_74.png",name);
                         }
-                    }
+                        if(j>=1 && programs[temp].network[i].component[k][j-1].Data0==2 && programs[temp].network[i].component[k][j].Data0!=2)
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_75.png",name);
+                        }
+                     }
                 }
                 if(programs[temp].network[i].component[k][j].Type == 5)
                 {
                     if(j==0 || (programs[temp].network[i].component[k][j-1].Data0!=2 && (programs[temp].network[i].component[k+1][j-1].Data0!=2 && programs[temp].network[i].component[k+1][j-1].Type!=2)))
                     {
-//                        QLabel *label = new QLabel;
-//                        set_col(label,"_29.png");
-//                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label); //table右移一列，额外+1
                         SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_29.png",name);
                     }
-                    if(j>=1)//两个并联情况
+                    if(k==7)
                     {
-//                        if(k==0)
-//                        {
-//                            if(programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)
-//                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_66.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_68.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                            }
-//                        }
-                        if(k==7)
+                        if(programs[temp].network[i].component[k][j].Data0==2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2)
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_42.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_42.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_40.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_40.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_42.png",name);
                         }
-                        if(k!=0 && k!=7)
+                        if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 != 2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2 && (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_35.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_35.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_36.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_36.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_40.png",name);
+                        }
+                        if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 == 2)
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_38.png",name);
                         }
                     }
-                    if(j>=2)//三个并联情况
+                    if(k!=0 && k!=7)
                     {
-//                        if(k==0)
-//                        {
-//                           if((programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)&&(programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))
-//                           {
-//                               QLabel *label1 = new QLabel;
-//                               set_col(label1,"_67.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                               QLabel *label2 = new QLabel;
-//                               set_col(label2,"_68.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                           }
-//                        }
-                        if(k==7)
+                        if(programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Data0==2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2 && programs[temp].network[i].component[k][j-2].Data0==2)
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_38.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_38.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_40.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_40.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_35.png",name);
                         }
-                        if(k!=0 && k!=7)
+                        if(programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Type==2)
                         {
-                            if((programs[temp].network[i].component[k][j-2].Data0==2 && (programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))&&(programs[temp].network[i].component[k][j-1].Data0==2 && (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_101.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_101.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_36.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_101.png",name);
+                        }
+                        if(programs[temp].network[i].component[k][j-1].Data0==2)
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_36.png",name);
                         }
                     }
                 }
@@ -1325,102 +1230,61 @@ void MainWindow::load_ld2(int temp = 0)
                 {
                     if(j==0 || (programs[temp].network[i].component[k][j-1].Data0!=2 && (programs[temp].network[i].component[k+1][j-1].Data0!=2 && programs[temp].network[i].component[k+1][j-1].Type!=2)))
                     {
-//                        QLabel *label = new QLabel;
-//                        set_col(label,);
-//                        ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label); //table右移一列，额外+1
                         SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_90.png",name);
                     }
-                    if(j>=1)//两个并联情况
+                    if(k==7)
                     {
-//                        if(k==0)
-//                        {
-//                            if(programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)
-//                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,"_66.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,"_68.png");
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                            }
-//                        }
-                        if(k==7)
+                        if(programs[temp].network[i].component[k][j].Data0==2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2)
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_96.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_94.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_96.png",name);
                         }
-                        if(k!=0 && k!=7)
+                        if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 != 2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2 && (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_91.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_93.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_94.png",name);
+                        }
+                        if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 == 2)
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_95.png",name);
                         }
                     }
-                    if(j>=2)//三个并联情况
+                    if(k!=0 && k!=7)
                     {
-//                        if(k==0)
-//                        {
-//                           if((programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)&&(programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))
-//                           {
-//                               QLabel *label1 = new QLabel;
-//                               set_col(label1,"_67.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-//                               QLabel *label2 = new QLabel;
-//                               set_col(label2,"_68.png");
-//                               ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-//                           }
-//                        }
-                        if(k==7)
+                        if(programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Data0==2)
                         {
-                            if(programs[temp].network[i].component[k][j-1].Data0==2 && programs[temp].network[i].component[k][j-2].Data0==2)
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_95.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_94.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_91.png",name);
                         }
-                        if(k!=0 && k!=7)
+                        if(programs[temp].network[i].component[k][j].Data0==2 && programs[temp].network[i].component[k+1][j].Type==2)
                         {
-                            if((programs[temp].network[i].component[k][j-2].Data0==2 && (programs[temp].network[i].component[k+1][j-2].Data0==2 || programs[temp].network[i].component[k+1][j-2].Type==2))&&(programs[temp].network[i].component[k][j-1].Data0==2 && (programs[temp].network[i].component[k+1][j-1].Data0==2 || programs[temp].network[i].component[k+1][j-1].Type==2)))
-                            {
-//                                QLabel *label1 = new QLabel;
-//                                set_col(label1,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j-1, k + 1 + 1),label1); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j - 1,k+2,"_92.png",name);
-//                                QLabel *label2 = new QLabel;
-//                                set_col(label2,);
-//                                ui->tableView->setIndexWidget(this->standItemModel->index(cnt_passrow + j, k + 1 + 1),label2); //table右移一列，额外+1
-                                SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_93.png",name);
-                            }
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_92.png",name);
+                        }
+                        if(programs[temp].network[i].component[k][j-1].Data0==2)
+                        {
+                            SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_93.png",name);
                         }
                     }
                 }
-//                else if(Networks[i].component[j][k].Type == 33)
-//                {
-
-//                }
+                //特殊元器件（简单类型）
+                if(programs[temp].network[i].component[k][j].Type >=  32 && programs[temp].network[i].component[k][j].Type <=  38)//SET,CALL,JMPB,RST,DIFU,DIFD,ALT
+                {
+                    int t = programs[temp].network[i].component[k][j].Type;
+                    QString cn[7] = {"STT","CALL","JMPB","RST","DIFU","DIFD","ALT"};
+                    if(j==0 || (programs[temp].network[i].component[k][j-1].Data0!=2 && (programs[temp].network[i].component[k+1][j-1].Data0!=2 && programs[temp].network[i].component[k+1][j-1].Type!=2)))
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_111.png",name,cn[t-32]);
+                    }
+                    if(programs[temp].network[i].component[k][j].Data0 == 2)
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_114.png",name,cn[t-32]);
+                    }
+                    if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 != 2)
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_112.png",name,cn[t-32]);
+                    }
+                    if(j>=1 && programs[temp].network[i].component[k][j-1].Data0 == 2 && programs[temp].network[i].component[k][j].Data0 == 2)
+                    {
+                        SetLabel(standItemModel,ui,cnt_passrow + j,k+2,"_113.png",name,cn[t-32]);
+                    }
+                }
 
             }
         }
@@ -1481,12 +1345,12 @@ void MainWindow::on_pushButton_3_clicked()//工程模式为一级程序，编辑
     else if(click_status == EditMode)
     {
         AddLD(row,colunm);//增加LD
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
     else if(click_status == NetworkOperat)
     {
         AddRowNext(row);//向下增加行
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
     else if(click_status == Displacement)
     {
@@ -1513,12 +1377,12 @@ void MainWindow::on_pushButton_2_clicked()//默认为二级程序,编辑模式�
     else if(click_status == EditMode)
     {
         AddOUT(row,colunm);//增加OUT
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
     else if(click_status == NetworkOperat)
     {
         AddNetNext(row);//向下增加网络
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
     else if(click_status == Functional)
     {
@@ -1551,7 +1415,7 @@ void MainWindow::on_pushButton_4_clicked()//默认模式为子级程序，编辑
     else if(click_status == EditMode)
     {
         AddLine(row,colunm);//增加Line
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
     else if(click_status == Displacement)
     {
@@ -1561,7 +1425,7 @@ void MainWindow::on_pushButton_4_clicked()//默认模式为子级程序，编辑
     else if(click_status == NetworkOperat)
     {
         AddRowBefore(row);//向上增加行
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
 }
 
@@ -1570,12 +1434,12 @@ void MainWindow::on_pushButton_5_clicked()//编辑模式为并联,网络/行向�
     if(click_status == EditMode)
     {
         Parallel(row,colunm);//并联
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
     else if(click_status == NetworkOperat)
     {
         AddNetBefore(row);//向上增加网络
-        MainWindow::load_ld2(Jobnumber);
+        MainWindow::reFreshLd2(Jobnumber);
     }
 }
 
@@ -1585,6 +1449,126 @@ void MainWindow::on_pushButton_7_clicked()//编辑模式为删除,网络/行删�
     {
         DeletNow(row,colunm);//删除当前元件
         MainWindow::load_ld2(Jobnumber);
+    }
+    else if(click_status==Engineering)
+    {
+        QStandardItemModel *standItemModel;
+                ui->treeView->hide();//隐藏其他控件
+                ui->tableView->hide();
+                ui->tableView_2->show();//显示表格控件
+
+                standItemModel = new QStandardItemModel();
+                standItemModel->setColumnCount(4);
+                standItemModel->setHeaderData(0,Qt::Horizontal,QStringLiteral("地址"));//设置表头内容
+                standItemModel->setHeaderData(1,Qt::Horizontal,QStringLiteral("指令名"));
+                standItemModel->setHeaderData(2,Qt::Horizontal,QStringLiteral("模块"));
+                standItemModel->setHeaderData(3,Qt::Horizontal,QStringLiteral("位置"));
+                ui->tableView_2->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);
+
+                int tempI = 0;//记录表格行数
+                for(int p = 0;p < programs.size();p ++)//向表格添加内容
+                {
+                    int tempR = 0;//记录这个程序的总行数
+                    for(int i = 0;i < programs[p].network.size();i ++)
+                    {
+
+                        for(int j = 0;j < programs[p].network[i].component[0].size();j ++)
+                        {
+                            for(int k = 0;k < 8;k ++)
+                            {
+                                if(programs[p].network[i].component[k][j].Type > 2)
+                                {
+                                    QStandardItem *standItem1 = new QStandardItem(programs[p].network[i].component[k][j].Name);
+                                    QString ch;
+                                    if(programs[p].network[i].component[k][j].Type == 3)
+                                    {
+                                        ch = "LD";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 4)
+                                    {
+                                        ch = "LDI";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 5)
+                                    {
+                                        ch = "OUT";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 6)
+                                    {
+                                        ch = "OUTN";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 23)
+                                    {
+                                        ch = "SPE";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 32)
+                                    {
+                                        ch = "SET";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 33)
+                                    {
+                                        ch = "CALL";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 35)
+                                    {
+                                        ch = "RST";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 36)
+                                    {
+                                        ch = "DIFU";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 37)
+                                    {
+                                        ch = "DIFD";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 41)
+                                    {
+                                        ch = "MOVN";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 42)
+                                    {
+                                        ch = "CMP";
+                                    }
+                                    else if(programs[p].network[i].component[k][j].Type == 43)
+                                    {
+                                        ch = "DECB";
+                                    }
+                                    QStandardItem *standItem2 = new QStandardItem(ch);
+                                    QStandardItem *standItem3 = new QStandardItem(programs[p].name);
+                                    QString ch1 = QString("R%1,C%2,网络%3").arg(tempR).arg(k).arg(i);
+
+                                    QStandardItem *standItem4 = new QStandardItem(ch1);
+                                    standItemModel->setItem(tempI,0,standItem1); //表格第i行，第0列添加一项内容
+                                    standItemModel->item(tempI,0)->setTextAlignment(Qt::AlignCenter);//设置表格内容居中
+
+                                    standItemModel->setItem(tempI,1,standItem2); //表格第i行，第1列添加一项内容
+                                    standItemModel->item(tempI,1)->setTextAlignment(Qt::AlignCenter);//设置表格内容居中
+
+                                    standItemModel->setItem(tempI,2,standItem3); //表格第i行，第2列添加一项内容
+                                    standItemModel->item(tempI,2)->setTextAlignment(Qt::AlignCenter);//设置表格内容居中
+
+                                    standItemModel->setItem(tempI,3,standItem4); //表格第i行，第3列添加一项内容
+                                    standItemModel->item(tempI,3)->setTextAlignment(Qt::AlignCenter);//设置表格内容居中
+                                    tempI++;
+                                }
+                            }
+                        tempR++;
+                        }
+                    }
+                }
+
+                ui->tableView_2->setModel(standItemModel);//挂载表格模型
+                ui->tableView_2->horizontalHeader()->setDefaultAlignment(Qt::AlignCenter);//表头信息显示居中
+                ui->tableView_2->horizontalHeader()->setSectionResizeMode(0,QHeaderView::Fixed);//设定表头弹性拉伸
+                ui->tableView_2->horizontalHeader()->setSectionResizeMode(1,QHeaderView::Fixed);
+                ui->tableView_2->horizontalHeader()->setSectionResizeMode(2,QHeaderView::Stretch);
+                ui->tableView_2->horizontalHeader()->setSectionResizeMode(3,QHeaderView::Stretch);
+                ui->tableView_2->setColumnWidth(0,100);//设定表格第0列宽度
+                ui->tableView_2->setColumnWidth(1,100);
+                ui->tableView_2->setColumnWidth(2,300);
+                ui->tableView_2->setColumnWidth(3,300);
+                ui->tableView_2->verticalHeader()->hide();//隐藏默认显示的行头
+                ui->tableView_2->setSelectionBehavior(QAbstractItemView::SelectRows);//设置选中时整行选中
+                ui->tableView_2->setEditTriggers(QAbstractItemView::NoEditTriggers);//设置表格属性只读，不能编辑
     }
     else if(click_status == NetworkOperat)
     {
@@ -1621,6 +1605,7 @@ void MainWindow::on_pushButton_16_clicked()
 
 void MainWindow::on_pushButton_12_clicked()//工程管理
 {
+
     click_status = Engineering;
     ui->pushButton_3->setStyleSheet(0);//恢复颜色
     ui->pushButton_2->setStyleSheet(0);
@@ -1629,20 +1614,23 @@ void MainWindow::on_pushButton_12_clicked()//工程管理
     ui->pushButton_2->setText("打开梯图\n通道1");
     ui->pushButton_4->setText("U盘导入\n通道1");
     ui->pushButton_5->setText("导至U盘\n通道1");
-    ui->pushButton_6->setText("查找");
+    ui->pushButton_6->setText("程序版本\n信息");
     ui->pushButton_3->setEnabled(false);//关闭控件
     ui->pushButton_2->setEnabled(false);
     ui->pushButton_4->setEnabled(false);
     ui->pushButton_5->setEnabled(false);
     ui->pushButton_11->setEnabled(false);
-    ui->pushButton_7->setText("程序版本\n信息");
-    ui->pushButton_16->setText("引用\n索引列表");
+    ui->pushButton_7->setText("引用\n索引列表");
+    ui->pushButton_16->setText("");
     ui->button_open->setText("返回");
     ui->pushButton_12->setStyleSheet("background-color: rgb(0, 170, 255)");//设置颜色
     ui->treeView->show();
+    ui->tableView_2->hide();
     ui->treeView->setEditTriggers(0);//将节点设置为不可编辑
-
-
+    for(int i=0;i<11;i++)
+    {
+        ui->tableView->horizontalHeader()->setSectionResizeMode(i,QHeaderView::Stretch);//显示窗口设置为可变
+    }
     QStandardItemModel *model = new QStandardItemModel(ui->treeView);//创建模型
     ui->treeView->setModel(model);//导入模型
     model->setHorizontalHeaderLabels(QStringList()<<QStringLiteral("项目名"));//添加表头
@@ -1659,21 +1647,24 @@ void MainWindow::on_pushButton_12_clicked()//工程管理
     for(int i = 2;i < programs.size();i ++)//添加子程序子节点
     {
         QStandardItem *itemChild3 = new QStandardItem(programs[i].name);
-        //qDebug()<<programs[i].name;
         itemProject3->appendRow(itemChild3);
-        //delete itemChild3;
     }
     connect(ui->treeView,SIGNAL(pressed(QModelIndex)),this,SLOT(slot_treeView_pressed(QModelIndex)));
 }
 
-void MainWindow::slot_treeView_pressed(QModelIndex modeIndex)//读取树状图点击的文件
+void MainWindow::slot_treeView_pressed(QModelIndex Index)//读取树状图点击的文件
 {
-    ui->treeView->resizeColumnToContents(modeIndex.row());//获取对应文件的下标
-    this->load_ld2(modeIndex.row());
-    Jobnumber = modeIndex.row();
-    qDebug()<<"adsdasqeqwewq";
+    QAbstractItemModel* m=(QAbstractItemModel*)Index.model();
+    for(int columnIndex = 0; columnIndex < m->columnCount(); columnIndex++)
+    {
+         if(Index.parent().data().toString()=="一级程序")
+             this->load_ld2(1);
+         else if(Index.parent().data().toString()=="二级程序")
+             this->load_ld2(2);
+         else if(Index.parent().data().toString()=="子程序")
+             this->load_ld2(Index.row()+3);
+    }
 }
-
 void MainWindow::on_pushButton_10_clicked()//默认状态为数据列表，编辑模式为网络/行操作
 {
     if(click_status == DefaultSet)

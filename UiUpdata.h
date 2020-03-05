@@ -25,7 +25,9 @@ void SetItem(QStandardItemModel *standItemModel,int cnt_leftpowerline);
 
 void SetLabel(QStandardItemModel *standItemModel, Ui::MainWindow *ui,int x, int y, QString picture, QString name);
 
+void SetLabel(QStandardItemModel *standItemModel, Ui::MainWindow *ui, int x, int y, QString picture, QString name, QString cell);
 
+void ShowRowName(QString);
 
 
 

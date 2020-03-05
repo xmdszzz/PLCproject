@@ -1,0 +1,14 @@
+main.o
+information.o
+mainwindow.o
+dialog.o
+panel_add_component.o
+parseld2.o
+editld2.o
+UiUpdata.o
+windows.o
+moc_mainwindow.o
+moc_dialog.o
+moc_information.o
+moc_panel_add_component.o
+moc_windows.o

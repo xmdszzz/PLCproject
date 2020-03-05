@@ -38,6 +38,7 @@ public:
     QHBoxLayout *horizontalLayout_3;
     QTableView *tableView;
     QTreeView *treeView;
+    QTableView *tableView_2;
     QLabel *label_program_info;
     QHBoxLayout *horizontalLayout;
     QPushButton *pushButton_12;
@@ -118,8 +119,14 @@ public:
 
         horizontalLayout_3->addWidget(treeView);
 
-        horizontalLayout_3->setStretch(0, 5);
+        tableView_2 = new QTableView(centralWidget);
+        tableView_2->setObjectName(QStringLiteral("tableView_2"));
+
+        horizontalLayout_3->addWidget(tableView_2);
+
+        horizontalLayout_3->setStretch(0, 3);
         horizontalLayout_3->setStretch(1, 1);
+        horizontalLayout_3->setStretch(2, 1);
 
         verticalLayout_2->addLayout(horizontalLayout_3);
 

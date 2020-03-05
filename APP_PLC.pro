@@ -24,6 +24,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
+    information.cpp \
         mainwindow.cpp \
     dialog.cpp \
     panel_add_component.cpp \
@@ -34,6 +35,7 @@ SOURCES += main.cpp\
 
 HEADERS  += mainwindow.h \
     dialog.h \
+    information.h \
     panel_add_component.h \
     newstruct.h \
     parseld2.h \
@@ -44,9 +46,9 @@ HEADERS  += mainwindow.h \
 
 FORMS    += mainwindow.ui \
     dialog.ui \
+    information.ui \
     panel_add_component.ui \
     windows.ui
 
 CONFIG+=precompile_header
 PRECOMPILED_HEADER=stable.h
-
